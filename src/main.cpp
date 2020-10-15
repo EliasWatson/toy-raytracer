@@ -14,10 +14,11 @@ vec3 sky_color(const ray& r) {
 	return mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
 }
 
-vec3 get_pixel(ray& r, visible_list& world) {
+vec3 get_pixel(const ray& r, visible_list& world) {
 	collision hit;
 	if(world.intersects(r, 0.0, MAXFLOAT, hit)) {
-		return 0.5 * vec3(hit.normal.x + 1.0, hit.normal.y + 1.0, hit.normal.z + 1.0);
+		vec3 target = hit.point + hit.normal + random_in_unit_sphere();
+		return 0.5 * get_pixel(ray(hit.point, target - hit.point), world);
 	} else {
 		return sky_color(r);
 	}
@@ -44,6 +45,8 @@ void render(image* img, int samples) {
 			}
 
 			col /= float(samples);
+			col = vec3(sqrt(col.x), sqrt(col.y), sqrt(col.z));
+
 			img->set_pixel(x, img->height - y - 1, col);
 		}
 	}
@@ -52,7 +55,7 @@ void render(image* img, int samples) {
 int main() {
 	const int width = 800;
 	const int height = 400;
-	const int samples = 32;
+	const int samples = 128;
 
 	image img(width, height);
 	render(&img, samples);
