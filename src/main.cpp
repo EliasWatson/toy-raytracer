@@ -17,7 +17,13 @@
 
 vec3 sky_color(const ray& r) {
 	double t = 0.5 * (r.dir.y + 1.0);
-	return mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+	vec3 col = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
+
+	double sun = dot(r.dir, normalize(vec3(0.0, 1.0, -1.0)));
+	sun = step(0.95, sun);
+	col = mix(col, vec3(4.0), sun);
+
+	return col;
 }
 
 vec3 get_pixel(const ray& r, visible_list& world, int depth = 0) {
@@ -66,7 +72,7 @@ void render(image* img, int samples) {
 	// Left glass
 	obj_list.push_back(new sphere(
 		vec3(-1.0, 0.0, -1.0),
-		0.5,
+		-0.45,
 		new dielectric(1.5)
 	));
 
@@ -86,6 +92,9 @@ void render(image* img, int samples) {
 
 			col /= double(samples);
 			col = vec3(sqrt(col.x), sqrt(col.y), sqrt(col.z));
+			col.x = clamp(0.0, 1.0, col.x);
+			col.y = clamp(0.0, 1.0, col.y);
+			col.z = clamp(0.0, 1.0, col.z);
 
 			img->set_pixel(x, img->height - y - 1, col);
 		}
