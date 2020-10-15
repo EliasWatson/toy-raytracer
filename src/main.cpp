@@ -9,22 +9,26 @@
 
 #include "material/lambertian.h"
 #include "material/metal.h"
+#include "material/dielectric.h"
 
 #include "float.h"
 #include <random>
+#include <iostream>
 
 vec3 sky_color(const ray& r) {
 	double t = 0.5 * (r.dir.y + 1.0);
 	return mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
 }
 
-vec3 get_pixel(const ray& r, visible_list& world) {
+vec3 get_pixel(const ray& r, visible_list& world, int depth = 0) {
+	if(depth > 64) return vec3(0.0);
+	
 	collision hit;
 	if(world.intersects(r, 0.0, MAXFLOAT, hit)) {
 		ray new_ray;
 		vec3 attenuation;
 		if(hit.mat->scatter(r, hit, attenuation, new_ray)) {
-			return attenuation * get_pixel(new_ray, world);
+			return attenuation * get_pixel(new_ray, world, depth + 1);
 		} else {
 			return vec3(0.0);
 		}
@@ -42,7 +46,7 @@ void render(image* img, int samples) {
 	obj_list.push_back(new sphere(
 		vec3(0.0, 0.0, -1.0),
 		0.5,
-		new lambertian(vec3(0.8, 0.3, 0.3))
+		new lambertian(vec3(0.1, 0.2, 0.5))
 	));
 
 	// Ground
@@ -56,18 +60,19 @@ void render(image* img, int samples) {
 	obj_list.push_back(new sphere(
 		vec3(1.0, 0.0, -1.0),
 		0.5,
-		new metal(vec3(0.8, 0.6, 0.2), 1.0)
+		new metal(vec3(0.8, 0.6, 0.2), 0.0)
 	));
 
-	// Left metal
+	// Left glass
 	obj_list.push_back(new sphere(
 		vec3(-1.0, 0.0, -1.0),
 		0.5,
-		new metal(vec3(0.8, 0.8, 0.8), 0.3)
+		new dielectric(1.5)
 	));
 
 	visible_list objects(obj_list);
 
+	std::cout << "Progress: 0%";
 	for(int y = 0; y < img->height; ++y) {
 		for(int x = 0; x < img->width; ++x) {
 			vec3 col;
@@ -84,7 +89,12 @@ void render(image* img, int samples) {
 
 			img->set_pixel(x, img->height - y - 1, col);
 		}
+
+		float progress = (float(y) / float(img->height)) * 100.0;
+		printf("\rProgress: %d%%", int(progress));
+		std::cout.flush();
 	}
+	std::cout << std::endl;
 }
 
 int main() {

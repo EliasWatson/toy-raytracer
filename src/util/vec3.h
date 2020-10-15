@@ -13,7 +13,7 @@ struct vec3 {
 
 	// Positive and negative operators
 	inline const vec3& operator+() const { return *this; }
-	inline vec3 operator-() const { return vec3(-x, -y, -z); }
+	inline vec3 operator-() const { return vec3(-this->x, -this->y, -this->z); }
 
 	// Modify operators
 	inline vec3& operator+=(const vec3& v2) {

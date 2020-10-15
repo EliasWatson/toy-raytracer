@@ -7,10 +7,10 @@
 class metal: public material {
 public:
 	vec3 albedo;
-	float roughness;
+	double roughness;
 
 	metal() : albedo(vec3(0.9)), roughness(0.0) { }
-	metal(const vec3& albedo, float roughness) : albedo(albedo), roughness(roughness) { }
+	metal(const vec3& albedo, double roughness) : albedo(albedo), roughness(roughness) { }
 
 	virtual bool scatter(const ray& r, const collision& hit, vec3& attenuation, ray& out_ray) const {
 		vec3 reflected = reflect(normalize(r.dir), hit.normal);
