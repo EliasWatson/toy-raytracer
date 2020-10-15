@@ -1,10 +1,14 @@
-#include "image.h"
-#include "vec3.h"
-#include "ray.h"
-#include "util.h"
-#include "visible_list.h"
-#include "sphere.h"
-#include "camera.h"
+#include "util/image.h"
+#include "util/vec3.h"
+#include "util/ray.h"
+#include "util/util.h"
+#include "util/camera.h"
+
+#include "object/visible_list.h"
+#include "object/sphere.h"
+
+#include "material/lambertian.h"
+#include "material/metal.h"
 
 #include "float.h"
 #include <random>
@@ -17,8 +21,13 @@ vec3 sky_color(const ray& r) {
 vec3 get_pixel(const ray& r, visible_list& world) {
 	collision hit;
 	if(world.intersects(r, 0.0, MAXFLOAT, hit)) {
-		vec3 target = hit.point + hit.normal + random_in_unit_sphere();
-		return 0.5 * get_pixel(ray(hit.point, target - hit.point), world);
+		ray new_ray;
+		vec3 attenuation;
+		if(hit.mat->scatter(r, hit, attenuation, new_ray)) {
+			return attenuation * get_pixel(new_ray, world);
+		} else {
+			return vec3(0.0);
+		}
 	} else {
 		return sky_color(r);
 	}
@@ -28,8 +37,34 @@ void render(image* img, int samples) {
 	camera cam;
 
 	std::vector<visible*> obj_list;
-	obj_list.push_back(new sphere(vec3(0.0, 0.0, -1.0), 0.5));
-	obj_list.push_back(new sphere(vec3(0.0, -100.5, -1.0), 100));
+
+	// Red diffuse
+	obj_list.push_back(new sphere(
+		vec3(0.0, 0.0, -1.0),
+		0.5,
+		new lambertian(vec3(0.8, 0.3, 0.3))
+	));
+
+	// Ground
+	obj_list.push_back(new sphere(
+		vec3(0.0, -100.5, -1.0),
+		100,
+		new lambertian(vec3(0.8, 0.8, 0.0))
+	));
+
+	// Right metal
+	obj_list.push_back(new sphere(
+		vec3(1.0, 0.0, -1.0),
+		0.5,
+		new metal(vec3(0.8, 0.6, 0.2), 1.0)
+	));
+
+	// Left metal
+	obj_list.push_back(new sphere(
+		vec3(-1.0, 0.0, -1.0),
+		0.5,
+		new metal(vec3(0.8, 0.8, 0.8), 0.3)
+	));
 
 	visible_list objects(obj_list);
 
@@ -55,7 +90,7 @@ void render(image* img, int samples) {
 int main() {
 	const int width = 800;
 	const int height = 400;
-	const int samples = 128;
+	const int samples = 256;
 
 	image img(width, height);
 	render(&img, samples);

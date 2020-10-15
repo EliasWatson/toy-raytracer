@@ -1,12 +1,15 @@
 #ifndef H_VISIBLE
 #define H_VISIBLE
 
-#include "ray.h"
+#include "../util/ray.h"
+
+class material;
 
 struct collision {
 	double dist;
 	vec3 point;
 	vec3 normal;
+	material* mat;
 };
 
 class visible {

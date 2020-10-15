@@ -7,9 +7,10 @@ class sphere: public visible {
 public:
 	vec3 pos;
 	double radius;
+	material* mat;
 
 	sphere() { }
-	sphere(vec3 pos, double radius): pos(pos), radius(radius) { }
+	sphere(vec3 pos, double radius, material* mat): pos(pos), radius(radius), mat(mat) { }
 
 	virtual bool intersects(const ray& r, double dist_min, double dist_max, collision& data) const;
 };
@@ -29,6 +30,7 @@ bool sphere::intersects(const ray& r, double dist_min, double dist_max, collisio
 				data.dist = temp;
 				data.point = r.extend(temp);
 				data.normal = normalize((data.point - pos) / radius);
+				data.mat = mat;
 				return true;
 			}
 			temp = (-b + sqrt(discriminant)) / a;

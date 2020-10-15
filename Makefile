@@ -1,5 +1,5 @@
 build_debug:
-	g++ -g -o raytracer_debug src/*.cpp src/*.h
+	g++ -g -o raytracer_debug src/*/*.h src/*/*.cpp src/*.cpp
 
 build_release:
-	g++ -O3 -o raytracer_final src/*.cpp src/*.h
+	g++ -O3 -o raytracer_final src/*/*.h src/*/*.cpp src/*.cpp
