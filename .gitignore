@@ -1,0 +1,4 @@
+raytracer_release
+raytracer_debug
+
+*.ppm
