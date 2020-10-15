@@ -4,12 +4,12 @@
 #include <math.h>
 
 struct vec3 {
-	float x, y, z;
+	double x, y, z;
 
 	// Constructors
 	vec3() : x(0), y(0), z(0) { }
-	vec3(float n) : x(n), y(n), z(n) { }
-	vec3(float x, float y, float z) : x(x), y(y), z(z) { }
+	vec3(double n) : x(n), y(n), z(n) { }
+	vec3(double x, double y, double z) : x(x), y(y), z(z) { }
 
 	// Positive and negative operators
 	inline const vec3& operator+() const { return *this; }
@@ -44,15 +44,15 @@ struct vec3 {
 		return *this;
 	}
 
-	// Modify by float operators
-	inline vec3& operator*=(const float t) {
+	// Modify by double operators
+	inline vec3& operator*=(const double t) {
 		this->x *= t;
 		this->y *= t;
 		this->z *= t;
 		return *this;
 	}
 
-	inline vec3& operator/=(const float t) {
+	inline vec3& operator/=(const double t) {
 		this->x /= t;
 		this->y /= t;
 		this->z /= t;
@@ -94,7 +94,7 @@ inline vec3 operator/(const vec3& v1, const vec3& v2) {
 }
 
 // Vector-Scalar operators
-inline vec3 operator*(const vec3& v1, const float n) {
+inline vec3 operator*(const vec3& v1, const double n) {
 	return vec3(
 		v1.x * n,
 		v1.y * n,
@@ -102,7 +102,7 @@ inline vec3 operator*(const vec3& v1, const float n) {
 	);
 }
 
-inline vec3 operator*(const float n, const vec3& v1) {
+inline vec3 operator*(const double n, const vec3& v1) {
 	return vec3(
 		v1.x * n,
 		v1.y * n,
@@ -110,7 +110,7 @@ inline vec3 operator*(const float n, const vec3& v1) {
 	);
 }
 
-inline vec3 operator/(const vec3& v1, const float n) {
+inline vec3 operator/(const vec3& v1, const double n) {
 	return vec3(
 		v1.x / n,
 		v1.y / n,
@@ -119,7 +119,7 @@ inline vec3 operator/(const vec3& v1, const float n) {
 }
 
 // Vector operators
-inline float dot(const vec3& v1, const vec3& v2) {
+inline double dot(const vec3& v1, const vec3& v2) {
 	return (v1.x * v2.x)
 		+  (v1.y * v2.y)
 		+  (v1.z * v2.z);
@@ -133,11 +133,11 @@ inline vec3 cross(const vec3& v1, const vec3& v2) {
 	);
 }
 
-inline float squared_length(const vec3& v) {
+inline double squared_length(const vec3& v) {
 	return dot(v, v);
 }
 
-inline float length(const vec3& v) {
+inline double length(const vec3& v) {
 	return sqrt(squared_length(v));
 }
 

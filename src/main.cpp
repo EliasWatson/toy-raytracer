@@ -10,7 +10,7 @@
 #include <random>
 
 vec3 sky_color(const ray& r) {
-	float t = 0.5 * (r.dir.y + 1.0);
+	double t = 0.5 * (r.dir.y + 1.0);
 	return mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
 }
 
@@ -38,13 +38,13 @@ void render(image* img, int samples) {
 			vec3 col;
 
 			for(int i = 0; i < samples; ++i) {
-				float u = float(x + drand48()) / float(img->width);
-				float v = float(y + drand48()) / float(img->height);
+				double u = double(x + drand48()) / double(img->width);
+				double v = double(y + drand48()) / double(img->height);
 				ray r = cam.get_ray(u, v);
 				col += get_pixel(r, objects);
 			}
 
-			col /= float(samples);
+			col /= double(samples);
 			col = vec3(sqrt(col.x), sqrt(col.y), sqrt(col.z));
 
 			img->set_pixel(x, img->height - y - 1, col);

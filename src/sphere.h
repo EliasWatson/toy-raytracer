@@ -6,23 +6,23 @@
 class sphere: public visible {
 public:
 	vec3 pos;
-	float radius;
+	double radius;
 
 	sphere() { }
-	sphere(vec3 pos, float radius): pos(pos), radius(radius) { }
+	sphere(vec3 pos, double radius): pos(pos), radius(radius) { }
 
-	virtual bool intersects(const ray& r, float dist_min, float dist_max, collision& data) const;
+	virtual bool intersects(const ray& r, double dist_min, double dist_max, collision& data) const;
 };
 
-bool sphere::intersects(const ray& r, float dist_min, float dist_max, collision& data) const {
+bool sphere::intersects(const ray& r, double dist_min, double dist_max, collision& data) const {
 	vec3 oc = r.pos - pos;
-	float a = dot(r.dir, r.dir);
-	float b = dot(oc, r.dir);
-	float c = dot(oc, oc) - radius*radius;
-	float discriminant = b*b - a*c;
+	double a = dot(r.dir, r.dir);
+	double b = dot(oc, r.dir);
+	double c = dot(oc, oc) - radius*radius;
+	double discriminant = b*b - a*c;
 
 	if(discriminant > 0.0) {
-		float temp = (-b - sqrt(discriminant)) / a;
+		double temp = (-b - sqrt(discriminant)) / a;
 
 		for(int i = 0; i < 2; ++i) {
 			if(dist_min < temp && temp < dist_max) {

@@ -9,7 +9,7 @@ struct ray {
 	ray() : pos(vec3()), dir(vec3()) { }
 	ray(const vec3& pos, const vec3& dir) : pos(pos), dir(normalize(dir)) { }
 
-	vec3 extend(float t) const { return pos + (dir * t); }
+	vec3 extend(double t) const { return pos + (dir * t); }
 };
 
 #endif

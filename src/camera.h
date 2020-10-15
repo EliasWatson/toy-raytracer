@@ -16,7 +16,7 @@ struct camera {
 		vertical = vec3(0.0, 2.0, 0.0);
 	}
 
-	ray get_ray(float u, float v) {
+	ray get_ray(double u, double v) {
 		return ray(
 			pos,
 			lower_left_corner + u*horizontal + v*vertical - pos

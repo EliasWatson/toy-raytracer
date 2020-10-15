@@ -6,7 +6,7 @@
 #include <random>
 
 template <typename T>
-inline T mix(T a, T b, float n) {
+inline T mix(T a, T b, double n) {
 	return ((1.0 - n) * a) + (n * b);
 }
 
