@@ -9,6 +9,7 @@ struct collision {
 	double dist;
 	vec3 point;
 	vec3 normal;
+	bool front_face;
 	material* mat;
 };
 

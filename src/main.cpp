@@ -15,12 +15,15 @@
 #include <random>
 #include <iostream>
 #include <thread>
+#include <sstream>
+
+vec3 sun_direction;
 
 vec3 sky_color(const ray& r) {
 	double t = 0.5 * (r.dir.y + 1.0);
 	vec3 col = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
 
-	double sun = dot(r.dir, normalize(vec3(0.0, 1.0, -1.0)));
+	double sun = dot(r.dir, sun_direction);
 	sun = step(0.95, sun);
 	col = mix(col, vec3(4.0), sun);
 
@@ -93,11 +96,17 @@ void render(image* img, camera* cam, visible_list* objects, int samples, int thr
 }
 
 int main() {
-	const int width = 800;
-	const int height = 400;
+	const int width = 640;
+	const int height = 480;
 	const int samples = 256;
 
-	camera cam;
+	camera cam(
+		vec3(-2.0, 2.0, 1.0),
+		vec3(0.0, 0.0, -1.0),
+		vec3(0.0, 1.0, 0.0),
+		90,
+		double(width) / double(height)
+	);
 
 	std::vector<visible*> obj_list;
 
@@ -125,11 +134,13 @@ int main() {
 	// Left glass
 	obj_list.push_back(new sphere(
 		vec3(-1.0, 0.0, -1.0),
-		-0.45,
+		0.5,
 		new dielectric(1.5)
 	));
 
 	visible_list objects(obj_list);
+
+	sun_direction = normalize(vec3(0.0, 1.0, -1.0));
 
 	image img(width, height);
 	render(&img, &cam, &objects, samples, 16);

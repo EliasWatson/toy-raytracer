@@ -11,23 +11,21 @@ public:
 	visible_list() { }
 	visible_list(std::vector<visible*> objects) : objects(objects) { }
 
-	virtual bool intersects(const ray& r, double dist_min, double dist_max, collision& data) const;
-};
+	virtual bool intersects(const ray& r, double dist_min, double dist_max, collision& data) const {
+		collision temp_collision;
+		bool collision_occured = false;
+		double closest_dist = dist_max;
 
-bool visible_list::intersects(const ray& r, double dist_min, double dist_max, collision& data) const {
-	collision temp_collision;
-	bool collision_occured = false;
-	double closest_dist = dist_max;
-
-	for(auto obj : objects) {
-		if(obj->intersects(r, dist_min, closest_dist, temp_collision)) {
-			collision_occured = true;
-			closest_dist = temp_collision.dist;
-			data = temp_collision;
+		for(const auto& obj : objects) {
+			if(obj->intersects(r, dist_min, closest_dist, temp_collision)) {
+				collision_occured = true;
+				closest_dist = temp_collision.dist;
+				data = temp_collision;
+			}
 		}
-	}
 
-	return collision_occured;
-}
+		return collision_occured;
+	}
+};
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "vec3.h"
 
-#include <math.h>
+#include <cmath>
 #include <random>
 
 template <typename T>
@@ -28,16 +28,14 @@ inline vec3 reflect(const vec3& v, const vec3& n) {
 	return v - 2.0*dot(v,n)*n;
 }
 
-inline bool refract(const vec3& v, const vec3& n, double ni_over_nt, vec3& refracted) {
-	vec3 uv = normalize(v);
-	double dt = dot(uv, n);
-	double discriminant = 1.0 - ni_over_nt*ni_over_nt*(1.0 - dt*dt);
-	if(discriminant > 0.0) {
-		refracted = ni_over_nt*(v - n*dt) - n*sqrt(discriminant);
-		return true;
-	} else {
-		return false;
-	}
+inline vec3 refract(const vec3& v, const vec3& n, double ni_over_nt) {
+	double cos_theta = dot(-v, n);
+	if(cos_theta > 1.0) cos_theta = 1.0;
+
+	vec3 r_out_perp = ni_over_nt * (v + cos_theta*n);
+	vec3 r_out_parallel = -sqrt(fabs(1.0 - dot(r_out_perp, r_out_perp))) * n;
+
+	return normalize(r_out_perp + r_out_parallel);
 }
 
 inline double schlick(double cosine, double ref_idx) {
@@ -47,11 +45,10 @@ inline double schlick(double cosine, double ref_idx) {
 }
 
 inline vec3 random_in_unit_sphere() {
-	vec3 p(1.0);
-	while(dot(p,p) >= 1.0) {
-		p = 2.0 * vec3(drand48(), drand48(), drand48()) - vec3(1.0);
+	while(true) {
+		vec3 p = (2.0 * vec3(drand48(), drand48(), drand48())) - vec3(1.0);
+		if(dot(p, p) < 1.0) return p;
 	}
-	return p;
 }
 
 #endif

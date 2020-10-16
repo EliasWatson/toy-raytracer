@@ -12,36 +12,23 @@ public:
 
 	virtual bool scatter(const ray& r, const collision& hit, vec3& attenuation, ray& out_ray) const {
 		attenuation = vec3(1.0, 1.0, 1.0);
-		vec3 outward_normal;
-		double ni_over_nt;
-		double reflect_prob;
-		double cosine;
+		double refraction_ratio = hit.front_face ? (1.0 / ref_idx) : ref_idx;
 
-		vec3 reflected = reflect(r.dir, hit.normal);
-		vec3 refracted;
+		double cos_theta = dot(-r.dir, hit.normal);
+		if(cos_theta > 1.0) cos_theta = 1.0;
 
-		if(dot(r.dir, hit.normal) > 0.0) {
-			outward_normal = -hit.normal;
-			ni_over_nt = ref_idx;
-			cosine = ref_idx * dot(r.dir, hit.normal);
+		double sin_theta = sqrt(1.0 - cos_theta*cos_theta);
+
+		bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+		vec3 direction;
+
+		if(cannot_refract || schlick(cos_theta, refraction_ratio) > drand48()) {
+			direction = reflect(r.dir, hit.normal);
 		} else {
-			outward_normal = hit.normal;
-			ni_over_nt = 1.0 / ref_idx;
-			cosine = -dot(r.dir, hit.normal);
+			direction = refract(r.dir, hit.normal, refraction_ratio);
 		}
 
-		if(refract(r.dir, outward_normal, ni_over_nt, refracted)) {
-			reflect_prob = schlick(cosine, ref_idx);
-		} else {
-			reflect_prob = 1.0;
-		}
-
-		if(drand48() < reflect_prob) {
-			out_ray = ray(hit.point, reflected);
-		} else {
-			out_ray = ray(hit.point, refracted);
-		}
-
+		out_ray = ray(hit.point, direction);
 		return true;
 	}
 };
