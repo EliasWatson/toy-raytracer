@@ -14,7 +14,8 @@ public:
 		attenuation = vec3(1.0, 1.0, 1.0);
 		double refraction_ratio = hit.front_face ? (1.0 / ref_idx) : ref_idx;
 
-		double cos_theta = dot(-r.dir, hit.normal);
+		vec3 unit_dir = normalize(r.dir);
+		double cos_theta = dot(-unit_dir, hit.normal);
 		if(cos_theta > 1.0) cos_theta = 1.0;
 
 		double sin_theta = sqrt(1.0 - cos_theta*cos_theta);
@@ -23,9 +24,9 @@ public:
 		vec3 direction;
 
 		if(cannot_refract || schlick(cos_theta, refraction_ratio) > drand48()) {
-			direction = reflect(r.dir, hit.normal);
+			direction = reflect(unit_dir, hit.normal);
 		} else {
-			direction = refract(r.dir, hit.normal, refraction_ratio);
+			direction = refract(unit_dir, hit.normal, refraction_ratio);
 		}
 
 		out_ray = ray(hit.point, direction);

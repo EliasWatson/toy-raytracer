@@ -20,12 +20,14 @@
 vec3 sun_direction;
 
 vec3 sky_color(const ray& r) {
-	double t = 0.5 * (r.dir.y + 1.0);
+	vec3 unit_dir = normalize(r.dir);
+
+	double t = 0.5 * (unit_dir.y + 1.0);
 	vec3 col = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), t);
 
-	double sun = dot(r.dir, sun_direction);
-	sun = step(0.95, sun);
-	col = mix(col, vec3(4.0), sun);
+	//double sun = dot(unit_dir, sun_direction);
+	//sun = step(0.95, sun);
+	//col = mix(col, vec3(4.0), sun);
 
 	return col;
 }
@@ -95,15 +97,48 @@ void render(image* img, camera* cam, visible_list* objects, int samples, int thr
 	}
 }
 
+visible_list* random_scene() {
+	std::vector<visible*> objects;
+	int n = 500;
+
+	objects.push_back(new sphere(vec3(0, -1000, 0), 1000, new lambertian(vec3(0.5))));
+
+	int i = 1;
+	for(int a = -11; a < 11; ++a) {
+		for(int b = -11; b < 11; ++b) {
+			double choose_mat = drand48();
+			vec3 center(a+0.9*drand48(), 0.2, b+0.9*drand48());
+
+			if(length(center - vec3(4, 0.2, 0)) > 0.9) {
+				if(choose_mat < 0.8) {
+					vec3 col(drand48()*drand48(), drand48()*drand48(), drand48()*drand48());
+					objects.push_back(new sphere(center, 0.2, new lambertian(col)));
+				} else if(choose_mat < 0.95) {
+					vec3 col(0.5*(1+drand48()), 0.5*(1+drand48()), 0.5*(1+drand48()));
+					objects.push_back(new sphere(center, 0.2, new metal(col, 0.5*drand48())));
+				} else {
+					objects.push_back(new sphere(center, 0.2, new dielectric(1.5)));
+				}
+			}
+		}
+	}
+
+	objects.push_back(new sphere(vec3(0, 1, 0), 1.0, new dielectric(1.5)));
+	objects.push_back(new sphere(vec3(-4, 1, 0), 1.0, new lambertian(vec3(0.4, 0.2, 0.1))));
+	objects.push_back(new sphere(vec3(4, 1, 0), 1.0, new metal(vec3(0.7, 0.6, 0.5), 0.0)));
+
+	return new visible_list(objects);
+}
+
 int main() {
 	const int width = 640;
 	const int height = 480;
-	const int samples = 256;
+	const int samples = 16;
 
-	vec3 cam_pos(3.0, 3.0, 2.0);
-	vec3 look_at(0.0, 0.0, -1.0);
+	vec3 cam_pos(13.0, 2.0, 3.0);
+	vec3 look_at(0.0, 0.0, 0.0);
 	double dist_to_focus = length(cam_pos - look_at);
-	double aperture = 2.0;
+	double aperture = 0.1;
 
 	camera cam(
 		cam_pos,
@@ -115,41 +150,11 @@ int main() {
 		dist_to_focus
 	);
 
-	std::vector<visible*> obj_list;
-
-	// Red diffuse
-	obj_list.push_back(new sphere(
-		vec3(0.0, 0.0, -1.0),
-		0.5,
-		new lambertian(vec3(0.1, 0.2, 0.5))
-	));
-
-	// Ground
-	obj_list.push_back(new sphere(
-		vec3(0.0, -100.5, -1.0),
-		100,
-		new lambertian(vec3(0.8, 0.8, 0.0))
-	));
-
-	// Right metal
-	obj_list.push_back(new sphere(
-		vec3(1.0, 0.0, -1.0),
-		0.5,
-		new metal(vec3(0.8, 0.6, 0.2), 0.0)
-	));
-
-	// Left glass
-	obj_list.push_back(new sphere(
-		vec3(-1.0, 0.0, -1.0),
-		0.5,
-		new dielectric(1.5)
-	));
-
-	visible_list objects(obj_list);
+	visible_list* world = random_scene();
 
 	sun_direction = normalize(vec3(0.0, 1.0, -1.0));
 
 	image img(width, height);
-	render(&img, &cam, &objects, samples, 16);
+	render(&img, &cam, world, samples, 16);
 	img.save("test.ppm");
 }
