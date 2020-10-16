@@ -47,7 +47,14 @@ inline double schlick(double cosine, double ref_idx) {
 inline vec3 random_in_unit_sphere() {
 	while(true) {
 		vec3 p = (2.0 * vec3(drand48(), drand48(), drand48())) - vec3(1.0);
-		if(dot(p, p) < 1.0) return p;
+		if(dot(p, p) < 1.0) return normalize(p);
+	}
+}
+
+inline vec3 random_in_unit_disk() {
+	while(true) {
+		vec3 p = 2.0 * vec3(drand48(), drand48(), 0.0) - vec3(1.0, 1.0, 0.0);
+		if(dot(p, p) < 1.0) return normalize(p);
 	}
 }
 

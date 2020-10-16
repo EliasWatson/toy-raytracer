@@ -100,12 +100,19 @@ int main() {
 	const int height = 480;
 	const int samples = 256;
 
+	vec3 cam_pos(3.0, 3.0, 2.0);
+	vec3 look_at(0.0, 0.0, -1.0);
+	double dist_to_focus = length(cam_pos - look_at);
+	double aperture = 2.0;
+
 	camera cam(
-		vec3(-2.0, 2.0, 1.0),
-		vec3(0.0, 0.0, -1.0),
+		cam_pos,
+		look_at,
 		vec3(0.0, 1.0, 0.0),
-		90,
-		double(width) / double(height)
+		20,
+		double(width) / double(height),
+		aperture,
+		dist_to_focus
 	);
 
 	std::vector<visible*> obj_list;
